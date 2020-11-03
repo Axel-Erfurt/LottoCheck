@@ -1,5 +1,5 @@
 # LottoCheck ![flag](https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ea.png)
-check Lotto (German Lotto 6 aus 49) Samstagsziehung
+check Lotto (Lotto 6 aus 49) Samstagsziehung
 
 Speichere bis zu 12 Tipps in zahlen.txt
 
