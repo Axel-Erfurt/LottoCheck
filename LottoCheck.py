@@ -5,12 +5,11 @@ import os
 import random
 from bs4 import BeautifulSoup as bsoup
 import requests
-import pandas as pd
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QStandardItemModel
 from PyQt5.QtWidgets import (QMainWindow , QWidget, QApplication, QTableView, QPushButton, QVBoxLayout, QHBoxLayout, 
-                            QLabel, QSizePolicy, QAbstractScrollArea, QInputDialog, QAction, QMessageBox, 
+                            QLabel, QAbstractScrollArea, QInputDialog, QAction, QMessageBox, 
                             QPlainTextEdit, QFileDialog)
-from PyQt5.QtCore import Qt, QModelIndex, QSettings, QVariant
+from PyQt5.QtCore import Qt, QSettings
 
 class Editor(QMainWindow):
     def __init__(self):
@@ -318,7 +317,6 @@ class MyWindow(QMainWindow):
         else:
             self.setMySuper()
         print("Superzahl:", self.mysuper)
-        count = 0
         self.tliste = []
         with open(self.zahlen, 'r') as f:
             text = f.read()
