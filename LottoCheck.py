@@ -9,7 +9,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel
 from PyQt5.QtWidgets import (QMainWindow , QWidget, QApplication, QTableView, QPushButton, QVBoxLayout, QHBoxLayout, 
                             QLabel, QAbstractScrollArea, QInputDialog, QAction, QMessageBox, 
                             QPlainTextEdit, QFileDialog)
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt, QSettings, QItemSelectionModel
 
 class Editor(QMainWindow):
     def __init__(self):
@@ -55,6 +55,7 @@ class MyWindow(QMainWindow):
         super(MyWindow, self).__init__()
         self.lz = []
         self.ts = 0
+        self.zahlenListe = []
         dir = os.path.dirname(sys.argv[0])
         self.settingsfile = "%s/%s" % (dir,"Lotto.conf")
         self.zahlen = "%s/%s" % (dir,"zahlen.txt")
@@ -140,6 +141,22 @@ class MyWindow(QMainWindow):
         print("Wilkommen bei Lotto")
         self.statusBar().showMessage("%s %s" % ("Willkommen bei LottoCheck"
                                     , " *** F5 Lottozahlen ändern *** F6 Superzahl ändern"), 0)
+                                    
+    def findTableItems(self):
+        model = self.tableview.model()
+        print(self.zahlenListe)
+        for column in range(11):
+            start = model.index(0, column)
+            for zahl in self.zahlenListe:      
+
+                matches = model.match(
+                    start, Qt.DisplayRole,
+                    str(zahl), 1, Qt.MatchExactly)
+                if matches:
+                    index = matches[0]
+                    # index.row(), index.column()
+                    self.tableview.selectionModel().select(
+                        index, QItemSelectionModel.Select)
 
     def saveNumbers(self):
         print(self.model.columnCount(), "Columns")
@@ -214,6 +231,7 @@ class MyWindow(QMainWindow):
             self.lz = result
             result = list(map(int, result))
             result.sort()
+            self.zahlenListe = result
             theSuper = lotto[6]
             self.ts = theSuper
             print("theSuper", self.ts)
@@ -287,6 +305,7 @@ class MyWindow(QMainWindow):
         self.statusBar().showMessage("%s %s %s %s" % ("Gewinnzahlen: "
                                     , (', '.join(str(x) for x in self.lz)), " *** Superzahl: ", str(self.ts)), 0)
         self.getSpiel77()
+        self.findTableItems()
 
     def setHeaders(self):
         self.tableview.horizontalHeader().setVisible(True)
