@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #-*- coding:utf-8 -*-
-#from __future__ import print_function
+
 import os
 import random
 from bs4 import BeautifulSoup as bsoup
@@ -145,7 +145,7 @@ class MyWindow(QMainWindow):
     def findTableItems(self):
         model = self.tableview.model()
         print(self.zahlenListe)
-        for column in range(11):
+        for column in range(12):
             start = model.index(0, column)
             for zahl in self.zahlenListe:      
 
@@ -154,7 +154,6 @@ class MyWindow(QMainWindow):
                     str(zahl), 1, Qt.MatchExactly)
                 if matches:
                     index = matches[0]
-                    # index.row(), index.column()
                     self.tableview.selectionModel().select(
                         index, QItemSelectionModel.Select)
 
@@ -219,35 +218,42 @@ class MyWindow(QMainWindow):
             print("values already here", self.lz)
             self.compare()
         else:
+            self.lottolink = "https://www.lotto.de/lotto-6aus49/lottozahlen"
             print("getting Values")
             source = requests.get(self.lottolink).text
             soup = bsoup(source, 'lxml')
-            result = (soup.find('div', class_='row sixaus49-numbers').text
-                        .partition("\n")[2].partition("Ziehungsreihenfolge")[0])
-            lotto = result.split()
+            lottoliste = []
+
+            for td in soup.find_all(class_='LottoBall__circle'):
+                lottoliste.append(td.text)
     
-            print("Gewinnzahlen:")
-            result =lotto[:6]
+            
+            result = lottoliste
+            self.zahlenListe = result[:6]
             self.lz = result
-            result = list(map(int, result))
-            result.sort()
-            self.zahlenListe = result
-            theSuper = lotto[6]
+            theSuper = lottoliste[6]
+            print("Gewinnzahlen:\n", self.zahlenListe)
             self.ts = theSuper
             print("theSuper", self.ts)
             for i in range(6):
                 self.model.setData(self.model.index(i, 12), result[i])
                 self.model.item(i, 12).setTextAlignment(Qt.AlignCenter)
             self.compare()
-
-
+            
     def getSpiel77(self):
+        self.lottolink = "https://www.lotto.de/lotto-6aus49/lottozahlen"
         source = requests.get(self.lottolink).text
         soup = bsoup(source, 'lxml')
-        result = soup.find('div', class_="col-12 h6").text #.partition("    <strong>")[0]
+        result = soup.find(class_='WinningNumbersAdditionalGame__text').text
         
-#        print("Spiel77:")
-        self.lbl.setText(self.lbl.text() + result.replace(" ", ""))
+        print("Spiel 77: ", result)
+        
+        super6 = soup.find(class_='WinningNumbersAdditionalGame__text').parent.find_next_siblings()[0].text
+        print("Super 6: ", super6)
+        
+        date = soup.find(class_="WinningNumbers__date").text
+        
+        self.lbl.setText(self.lbl.text() + "\n" + date + "\n\n" + result.replace("Spiel 77", "Spiel 77: ") + "\n" + super6.replace("Super 6", "Super 6: "))
 
     def compare(self):
         ### compare all tipps
@@ -301,7 +307,7 @@ class MyWindow(QMainWindow):
                     self.lbl.setText(rtext)      
 
         if self.lbl.text() == "":
-            self.lbl.setText("leider nichts gewonnen ...")
+            self.lbl.setText("leider nichts gewonnen ...\n")
         self.statusBar().showMessage("%s %s %s %s" % ("Gewinnzahlen: "
                                     , (', '.join(str(x) for x in self.lz)), " *** Superzahl: ", str(self.ts)), 0)
         self.getSpiel77()
