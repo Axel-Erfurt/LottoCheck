@@ -88,18 +88,6 @@ class MyWindow(QMainWindow):
         self.pushButtonLoad.setFixedWidth(110)
         self.pushButtonLoad.setFixedHeight(24)
 
-        self.btnGenerator = QPushButton()
-        self.btnGenerator.setText("Zufallszahlen")
-        self.btnGenerator.clicked.connect(self.generateNumbers)
-        self.btnGenerator.setFixedWidth(110)
-        self.btnGenerator.setFixedHeight(24)
-
-        self.btnSave = QPushButton()
-        self.btnSave.setText("Speichern")
-        self.btnSave.clicked.connect(self.saveNumbers)
-        self.btnSave.setFixedWidth(110)
-        self.btnSave.setFixedHeight(24)
-
         self.zahlenAction = QAction(QIcon.fromTheme("edit"), "Editor", self, 
                                     triggered = self.edit_Tipps, shortcut = "F5")
         self.addAction(self.zahlenAction)
@@ -112,16 +100,10 @@ class MyWindow(QMainWindow):
                                     triggered = self.showInfo, shortcut = "F1")
         self.addAction(self.infoAction)
 
-        self.generatorAction = QAction(QIcon.fromTheme("help-info"), "Generator", self, 
-                                        triggered = self.generateNumbers, shortcut = "F7")
-        self.addAction(self.generatorAction)
-
         self.lbl = QLabel()
 
         self.hbox = QHBoxLayout()
         self.hbox.addWidget(self.pushButtonLoad)
-        self.hbox.addWidget(self.btnGenerator)
-        self.hbox.addWidget(self.btnSave)
 
         grid = QVBoxLayout()
         grid.setSpacing(10)
@@ -144,6 +126,7 @@ class MyWindow(QMainWindow):
                                     
     def findTableItems(self):
         model = self.tableview.model()
+        self.tableview.selectionModel().clearSelection()
         print(self.zahlenListe)
         for column in range(12):
             start = model.index(0, column)
@@ -175,21 +158,6 @@ class MyWindow(QMainWindow):
                 textData += "\n"
             f.write(textData)
             f.close()
-
-    def generateNumbers(self):
-        tippliste = []
-        self.tliste = []
-        for x in range(self.model.columnCount() - 1):
-            t = sorted(random.sample(range(1, 50), 6))
-            tippliste.append(str(t).strip('[]'))
-        for tips in tippliste:
-            self.tliste.append(tips.split(","))
-        for i in range(self.model.columnCount() - 1):
-            tipp = tippliste[i].split(",")
-            for row in range(len(tipp)):
-                self.model.setData(self.model.index(row, i), tipp[row])
-                self.model.item(row, i).setTextAlignment(Qt.AlignCenter)
-        self.getLotto()
 
     def edit_Tipps(self):
         self.edWin = Editor()
@@ -257,7 +225,8 @@ class MyWindow(QMainWindow):
 
     def compare(self):
         ### compare all tipps
-        self.lz = [ int(x) for x in self.lz]
+        print("self.lz: ", self.lz)
+        self.lz = [ int(x) for x in self.lz[:6]]
         print(self.mysuper, self.lz)
         self.lbl.clear()
         tipp = []
