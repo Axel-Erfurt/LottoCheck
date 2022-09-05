@@ -1,8 +1,7 @@
-#!/usr/bin/python3
-#-*- coding:utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import os
-import random
 from bs4 import BeautifulSoup as bsoup
 import requests
 from PyQt5.QtGui import QIcon, QStandardItemModel
@@ -182,51 +181,34 @@ class MyWindow(QMainWindow):
         msg.exec_()
 
     def getLotto(self):
-        if not self.lz == []:
-            print("values already here", self.lz)
-            self.compare()
-        else:
-            self.lottolink = "https://www.lotto.de/lotto-6aus49/lottozahlen"
-            print("getting Values")
-            source = requests.get(self.lottolink).text
-            soup = bsoup(source, 'lxml')
-            lottoliste = []
-
-            for td in soup.find_all(class_='LottoBall__circle'):
-                lottoliste.append(td.text)
-    
-            
-            result = lottoliste
-            self.zahlenListe = result[:6]
-            self.lz = result
-            theSuper = lottoliste[6]
-            print("Gewinnzahlen:\n", self.zahlenListe)
-            self.ts = theSuper
-            print("theSuper", self.ts)
-            for i in range(6):
-                self.model.setData(self.model.index(i, 12), result[i])
-                self.model.item(i, 12).setTextAlignment(Qt.AlignCenter)
-            self.compare()
-            
-    def getSpiel77(self):
-        self.lottolink = "https://www.lotto.de/lotto-6aus49/lottozahlen"
+        print("hole Zahlen ...")
         source = requests.get(self.lottolink).text
         soup = bsoup(source, 'lxml')
-        result = soup.find(class_='WinningNumbersAdditionalGame__text').text
+        result = soup.find('div', class_='row sixaus49-numbers').text.partition("\n")[2].partition("Ziehungsreihenfolge")[0]
+        lotto = result.split()
+        result =lotto[:6]
+        self.zahlenListe = lotto
+        result = list(map(int, result))
+        result.sort()
+        theSuper = lotto[6]
+        for i in range(6):
+            self.model.setData(self.model.index(i, 12), result[i])
+        print(f"Gewinnzahlen: {result}\nSuperzahl: {theSuper}")
+        self.compare(result, theSuper)
         
-        print("Spiel 77: ", result)
-        
-        super6 = soup.find(class_='WinningNumbersAdditionalGame__text').parent.find_next_siblings()[0].text
-        print("Super 6: ", super6)
-        
-        date = soup.find(class_="WinningNumbers__date").text
-        
-        self.lbl.setText(self.lbl.text() + "\n" + date + "\n\n" + result.replace("Spiel 77", "Spiel 77: ") + "\n" + super6.replace("Super 6", "Super 6: "))
 
-    def compare(self):
+    def getSpiel77(self):
+        source = requests.get(self.lottolink).text
+        spiel77 = source.partition("Spiel77: </strong>")[2].partition("\n")[0]
+        super6 = source.partition("Super6: </strong>")[2].partition(" &nbsp;&nbsp;&nbsp;&nbsp;")[0]
+        print(f"\nSpiel77: {spiel77}\nSuper6: {super6}")
+        self.lbl.setText(f"{self.lbl.text()}\n\nSpiel77: {spiel77}\nSuper6: {super6}")
+        
+
+    def compare(self, result, theSuper):
         ### compare all tipps
         print("self.lz: ", self.lz)
-        self.lz = [ int(x) for x in self.lz[:6]]
+        self.lz = [ int(x) for x in result]
         print(self.mysuper, self.lz)
         self.lbl.clear()
         tipp = []
@@ -240,7 +222,7 @@ class MyWindow(QMainWindow):
                     t.append(a)
 
             rtext = ""
-            print("len(t) ", len(t) )
+            #print("len(t) ", len(t) )
             if len(t) == 2 and self.mysuper == self.ts:
                 rtext += self.lbl.text()
                 rtext += '\ngewonnen in Tipp '
@@ -278,7 +260,7 @@ class MyWindow(QMainWindow):
         if self.lbl.text() == "":
             self.lbl.setText("leider nichts gewonnen ...\n")
         self.statusBar().showMessage("%s %s %s %s" % ("Gewinnzahlen: "
-                                    , (', '.join(str(x) for x in self.lz)), " *** Superzahl: ", str(self.ts)), 0)
+                                    , (', '.join(str(x) for x in result)), " *** Superzahl: ", str(theSuper)), 0)
         self.getSpiel77()
         self.findTableItems()
 
