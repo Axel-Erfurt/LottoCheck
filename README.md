@@ -16,8 +16,5 @@ Speichere deine Superzahl in Lotto.conf
 
 **Zahlen holen** holt die Zahlen der Samstagsziehung und vergleicht mit den eigenen Zahlen.
 
-**Zufallszahlen** generiert Zufallszahlen und wertet aus.
-
-**Speichern** speichert die zuletzt generierten Zufallszahlen.
 
 ![alt text](https://github.com/Axel-Erfurt/LottoCheck/blob/main/screenshot.png)
