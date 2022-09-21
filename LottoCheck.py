@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#-*- coding:utf-8 -*-
 
 import os
 from bs4 import BeautifulSoup as bsoup
@@ -126,10 +126,10 @@ class MyWindow(QMainWindow):
     def findTableItems(self):
         model = self.tableview.model()
         self.tableview.selectionModel().clearSelection()
-        print(self.zahlenListe)
+        print(f"zahlenListe: {self.zahlenListe}")
         for column in range(12):
             start = model.index(0, column)
-            for zahl in self.zahlenListe:      
+            for zahl in self.zahlenListe[:6]:      
 
                 matches = model.match(
                     start, Qt.DisplayRole,
@@ -191,6 +191,7 @@ class MyWindow(QMainWindow):
         result = list(map(int, result))
         result.sort()
         theSuper = lotto[6]
+        self.ts = theSuper
         for i in range(6):
             self.model.setData(self.model.index(i, 12), result[i])
         print(f"Gewinnzahlen: {result}\nSuperzahl: {theSuper}")
@@ -207,7 +208,7 @@ class MyWindow(QMainWindow):
 
     def compare(self, result, theSuper):
         ### compare all tipps
-        print("self.lz: ", self.lz)
+        print(f"self.lz:\n{self.lz}\nself.ts: {self.ts}")
         self.lz = [ int(x) for x in result]
         print(self.mysuper, self.lz)
         self.lbl.clear()
@@ -367,8 +368,8 @@ if __name__ == "__main__":
     main = MyWindow()
     main.setMinimumSize(649, 460)
     main.setGeometry(0,0,649,460)
-    main.setWindowTitle("Lottozahlen 6 aus 49")
+    main.setWindowTitle("Lottozahlen 6 aus 49 *** F5 Lottozahlen ändern *** F6 Superzahl ändern")
     main.setWindowIcon(QIcon.fromTheme("browser"))
     main.show()
 
-sys.exit(app.exec_())
+    sys.exit(app.exec_())
